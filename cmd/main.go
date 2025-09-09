@@ -8,6 +8,7 @@ import (
 	"github.com/joho/godotenv"
 
 	"github.com/yourusername/thoughtstream/pkg/db"
+	"github.com/yourusername/thoughtstream/internal/users"
 )
 
 func main() {
@@ -15,6 +16,7 @@ func main() {
 	if err != nil {
 		log.Fatal("❌ Error loading .env file")
 	}
+
 	db.Connect()
 
 	r := gin.Default()
@@ -22,6 +24,10 @@ func main() {
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(200, gin.H{"status": "ok"})
 	})
+
+	userHandler := users.NewHandler(db.DB)
+	r.POST("/signup", userHandler.Signup)
+	r.POST("/login", userHandler.Login)
 
 	port := os.Getenv("PORT")
 	if port == "" {
